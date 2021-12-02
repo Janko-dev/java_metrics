@@ -1,7 +1,9 @@
 module Functions
 
+import IO;
 import List;
 import String;
+import Map;
 
 // Eliminates singe line comments
 public str trimSinglelineComments(str line) {
@@ -75,4 +77,64 @@ public bool inString(line, pattern) {
     return contains(sub, pattern);
   }
   return false;
+}
+
+// percentage calculation
+public real percentage(part, total) {
+  return part / total * 100.0;
+}
+
+//returns the risks maps with the percentage of the total for each level
+public map[str, real] riskPercentages(map[str, real] risks, int totalLoc) {
+  // Calculates percentages for each risk level.
+  for(str key <- domain(risks)) {
+    risks[key] = percentage(risks[key], totalLoc);
+  }
+  return risks;
+}
+
+//Unit size rating, SIG Thresholds (only 4stars found, Rest still missing)
+//To be eligible for certification at the level of 4 stars, for each programming language used:
+//The percentage of lines of code residing in units with more than 15 lines of code should not exceed 42.3%.
+//percentage in units with more than 30 lines of code should not exceed 18.5%.
+//The percentage in units with more than 60 lines should not exceed 5.4%.
+public str rating(map[str, real] riskLevels) {
+  if(riskLevels["moderate"] <= 25 && riskLevels["high"] == 0 && riskLevels["veryHigh"] == 0) {
+    return "++";
+  } else if(riskLevels["moderate"] <= 30 && riskLevels["high"] <= 5 && riskLevels["veryHigh"] == 0) {
+    return "+";
+  } else if(riskLevels["moderate"] <= 40 && riskLevels["high"] <= 10 && riskLevels["veryHigh"] == 0) {
+    return "o";
+  } else if(riskLevels["moderate"] <= 42.3 && riskLevels["high"] <= 18.5 && riskLevels["veryHigh"] <= 5.4) {
+    return "-";
+  } else {
+    return "--";
+  }
+}
+
+//Output Unit size info
+public void resultsPrinter(map[str, real] riskLevels, str riskScore) {
+  real low = riskLevels["low"];
+  real moderate = riskLevels["moderate"];
+  real high = riskLevels["high"];
+  real veryHigh = riskLevels["veryHigh"];
+
+  println("Low:\t\t<low>");
+  println("Moderate:\t<moderate>");
+  println("High:\t\t<high>");
+  println("Very High:\t<veryHigh>");
+  println("Score: <riskScore>");
+  println();
+}
+
+// Eliminate comments and empty lines
+public list[str] trimLoc(loc content) {
+  list[str] objectContent = readFileLines(content);
+// Replace Multiline comment with empty
+  objectContent = trimMultilineComments(objectContent);
+// Replace single line comments with empty
+  objectContent = mapper(objectContent, trimSinglelineComments);
+// Filter Empty
+  objectContent = filterEmpty(objectContent, bool (str f) { return size(trim(f)) != 0; });
+  return objectContent;
 }

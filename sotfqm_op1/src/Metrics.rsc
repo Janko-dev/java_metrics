@@ -6,6 +6,7 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::FileSystem;
 import Volume;
+import UnitSize;
 
 public void runMetricsHSQL() {
   loc hsql = |project://hsqldb/|;
@@ -23,4 +24,5 @@ public void runMetrics(loc path) {
   M3 m3 = createM3FromEclipseProject(path); //Later use
   println("----");
   volume(path);
+  unitSize(m3);
 }
