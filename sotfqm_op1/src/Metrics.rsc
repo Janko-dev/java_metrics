@@ -21,7 +21,7 @@ public void runMetricsSmallSql() {
 }
 
 public void runMetrics(loc path) {
-  M3 m3 = createM3FromEclipseProject(path); //Later use
+  M3 m3 = createM3FromEclipseProject(path);
   println("----");
   volume(path);
   unitSize(m3);
