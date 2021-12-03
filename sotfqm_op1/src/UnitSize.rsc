@@ -9,16 +9,17 @@ import lang::java::m3::Core;
 import Functions;
 
 // calculate and print unit size
-public void unitSize(M3 m3) {
+public str unitSize(M3 m3) {
 //Method list
   list[loc] locMethods = toList(methods(m3));
+  println("number of units: <size(locMethods)>");
 //map lvl label and lvl % size  
   map[str, real] riskLevels = calRiskLevels(locMethods);
-// generate risk score  
-  str riskScore = rating(riskLevels);
 // Output  
   println("--------- Unit Size ---------");
-  resultsPrinter(riskLevels, riskScore);
+  resultsPrinter(riskLevels);
+// generate risk score
+  return ratingUnitSize(riskLevels);
 }
 
 // Calculates percentage of total for each risk level
