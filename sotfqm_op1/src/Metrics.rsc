@@ -7,6 +7,7 @@ import lang::java::m3::Core;
 import util::FileSystem;
 import Volume;
 import UnitSize;
+import Clones;
 
 public void runMetricsHSQL() {
   loc hsql = |project://hsqldb/|;
@@ -25,4 +26,5 @@ public void runMetrics(loc path) {
   println("----");
   volume(path);
   unitSize(m3);
+  findClones(path);
 }
