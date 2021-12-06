@@ -33,5 +33,5 @@ public void runMetrics(loc path) {
   scores["Unit complexity score"] = cyclomaticComplexity(m3);
   
   scorePrinter(scores);
-  findClones(path);
+  findClones(path, false);
 }
