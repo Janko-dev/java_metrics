@@ -8,6 +8,8 @@ import util::FileSystem;
 import Volume;
 import UnitSize;
 import Clones;
+import Functions;
+import CyclomaticComplexity;
 
 public void runMetricsHSQL() {
   loc hsql = |project://hsqldb/|;
@@ -24,7 +26,12 @@ public void runMetricsSmallSql() {
 public void runMetrics(loc path) {
   M3 m3 = createM3FromEclipseProject(path);
   println("----");
-  volume(path);
-  unitSize(m3);
+  map[str, str] scores = ();
+  
+  scores["Volume score"] = volume(path);
+  scores["Unit size score"] = unitSize(m3);
+  scores["Unit complexity score"] = cyclomaticComplexity(m3);
+  
+  scorePrinter(scores);
   findClones(path);
 }

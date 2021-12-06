@@ -47,7 +47,7 @@ public tuple[int,int] lazyFind(lrel[int, str] container, str pattern) {
 }
 
 // filter out lines that dont comply with the given function
-public list[&T] filterEmpty(list[&T] vals, func) {
+public list[&T] filterEmpty(list[&T] vals, bool (str)func) {
   return [ x | x <- vals, func(x)];
 }
 
@@ -80,7 +80,7 @@ public bool inString(line, pattern) {
 }
 
 // percentage calculation
-public real percentage(part, total) {
+public real percentage(real part, int total) {
   return part / total * 100.0;
 }
 
@@ -98,7 +98,7 @@ public map[str, real] riskPercentages(map[str, real] risks, int totalLoc) {
 //The percentage of lines of code residing in units with more than 15 lines of code should not exceed 42.3%.
 //percentage in units with more than 30 lines of code should not exceed 18.5%.
 //The percentage in units with more than 60 lines should not exceed 5.4%.
-public str rating(map[str, real] riskLevels) {
+public str ratingUnitSize(map[str, real] riskLevels) {
   if(riskLevels["moderate"] <= 25 && riskLevels["high"] == 0 && riskLevels["veryHigh"] == 0) {
     return "++";
   } else if(riskLevels["moderate"] <= 30 && riskLevels["high"] <= 5 && riskLevels["veryHigh"] == 0) {
@@ -112,8 +112,22 @@ public str rating(map[str, real] riskLevels) {
   }
 }
 
+public str ratingCyclomaticComplexity(map[str, real] riskLevels) {
+  if(riskLevels["moderate"] <= 25 && riskLevels["high"] == 0 && riskLevels["veryHigh"] == 0) {
+    return "++";
+  } else if(riskLevels["moderate"] <= 30 && riskLevels["high"] <= 5 && riskLevels["veryHigh"] == 0) {
+    return "+";
+  } else if(riskLevels["moderate"] <= 40 && riskLevels["high"] <= 10 && riskLevels["veryHigh"] == 0) {
+    return "o";
+  } else if(riskLevels["moderate"] <= 50.3 && riskLevels["high"] <= 15 && riskLevels["veryHigh"] <= 5) {
+    return "-";
+  } else {
+    return "--";
+  }
+}
+
 //Output Unit size info
-public void resultsPrinter(map[str, real] riskLevels, str riskScore) {
+public void resultsPrinter(map[str, real] riskLevels) {
   real low = riskLevels["low"];
   real moderate = riskLevels["moderate"];
   real high = riskLevels["high"];
@@ -122,9 +136,13 @@ public void resultsPrinter(map[str, real] riskLevels, str riskScore) {
   println("Low:\t\t<low>");
   println("Moderate:\t<moderate>");
   println("High:\t\t<high>");
-  println("Very High:\t<veryHigh>");
-  println("Score: <riskScore>");
-  println();
+  println("Very High:\t<veryHigh>\n");
+}
+
+public void scorePrinter(map[str, str] scores) {
+  for (<str name, str score> <- toRel(scores)){
+  	println("<name>: <score>");
+  }
 }
 
 // Eliminate comments and empty lines
