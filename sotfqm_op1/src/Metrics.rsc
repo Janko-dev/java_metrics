@@ -36,5 +36,5 @@ public void runMetrics(loc path) {
   scores["Test Code Coverage"] = testCoverage(m3);
   
   scorePrinter(scores);
-  findClones(path);
+  findClones(path, false);
 }

@@ -6,7 +6,7 @@ import util::FileSystem;
 import Volume;
 import String;
 import DateTime;
-import Map;
+//import Map;
 import util::Resources;
 import List;
 import Set;
@@ -17,93 +17,110 @@ import Functions;
 alias ProjectMap = map[loc file, list[str] strContent];
 alias strProjectMap = map[loc file, str Content];
 
+//Store all java files in a map, with file contents as a list of strings
+//Used to split each file in blocks of 6 lines of code
 ProjectMap projectContents = ();
+
+//Store all java files in a map, with file contents as a string
+//Used to search for a particular code block in all files
 strProjectMap strProjectContents = ();
 
-set[loc] javaBestanden(loc project) {
+//Reads java files from project
+set[loc] readJavaFiles(loc project) {
    Resource r = getProject(project);
    return { a | /file(a) <- r, a.extension == "java" };
 }
 
-public void findClones(loc m3){
-  
-  set[loc] bestanden = javaBestanden(m3);
- 
-  projectContents = ( a:trimLoc(a) | a <- bestanden );
-  
-  strProjectContents = ( a:toString(trimLoc(a)) | a <- bestanden );
-	 
+//Finds clones in a projoject
+public void findClones(loc m3, bool showoutput){
+
   datetime startTime = now();
-  println("start");
-  println(startTime);
+  set[loc] allFiles = readJavaFiles(m3);
+ 
+  projectContents = ( a:trimLoc(a) | a <- allFiles );
+  
+  strProjectContents = ( a:toString(trimLoc(a)) | a <- allFiles );
   
   int totalClones = 0;
 
   for(fileContent <- projectContents){
-//Process each file in project
-  	 totalClones += findclone2(fileContent);	
+//Process each java file in project
+  	 totalClones += findclone(fileContent, showoutput);	
   }
  
-  totalClones = totalClones / 2;
-  println("Clones found:");
-  println(totalClones); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
-  println(now());
+  println("Clones found:<totalClones>");
+  datetime endTime = now();
+  println(<endTime - startTime>);
 }
 
+// Split file content into blocks
+list[str] makeBlocks(int blockSize, list[str] content){
+	
+	list[str] blocks = [];
+	while( size(content)>blockSize ){
+	 	codeBlock = head(content,blockSize);
+	 	content = tail(content, (size(content) - 1));
+	 	strCodeBlock = replaceLast(toString(codeBlock), "]" , "");
+	 	strCodeBlock = replaceFirst(strCodeBlock, "[" , "");
+		strCodeBlock = substring(strCodeBlock, 1, size(strCodeBlock)-1);
+	 //Add prepared block to list of blocks for this file	 		
+	 	blocks = blocks + strCodeBlock;
+ 	}
+ return blocks;
+}
 
- int findclone2(loc file){
-// Get all files and store them as a List of strings 
+// Print clone information
+void printInfo(loc target, loc source, str sampleCode){
+    println("target:<target>");
+	println("source:<source>");
+	println("sampleCode:<sampleCode>");
+}
 
- int total = 0;
- str sampleCode = "";
+// String comparison of each given block with the content collection
+int searchInFiles(list[str] blocks, loc source, bool showoutput){
 
- list[str] filecontent = projectContents[file];
- list[str] fileBlocks = [];
-// make blocks of 6 lines and compare with all files, we get at least 1 match 
- while( size(filecontent)>6 ){
- 	codeBlock = head(filecontent,6);
- 	filecontent = tail(filecontent, (size(filecontent) - 1));
- 	strCodeBlock = replaceLast(toString(codeBlock), "]" , "");
- 	strCodeBlock = replaceFirst(strCodeBlock, "[" , "");
-	strCodeBlock = substring(strCodeBlock, 1, size(strCodeBlock)-1);
- //Add prepared block to list of blocks for this file	 		
- 	fileBlocks = fileBlocks + strCodeBlock;
- }
- 
- if (size(findAll(toString(fileBlocks), "SSCallableStatement"))>0){
- 	int breaker = 0;
- }
- 	for(sourcefile <- strProjectContents){
+    int total = 0;
+    str sampleCode = "";
+ 	for(target <- strProjectContents){
  	 	int matches = 0;
  	 	sampleCode = "";
- 		sourceContent = strProjectContents[sourcefile];
-//		matches = checkFile(codeBlock, strSource);
-		for(block <- fileBlocks){
-	    	matches += size(findAll(sourceContent, block));
-//	    	if (matches > 100){
-//	    		sourceContent = replaceAll(sourceContent, block, "");
-//	    	}
+ 		targetContent = strProjectContents[target];
+		for(block <- blocks){
+	    	matches += size(findAll(targetContent, block));
 	    	if (matches >= 1 && sampleCode == ""){
 	    		sampleCode = block;
 	    	}
 	    }
-	    if(sourcefile != file){
+	    if(target != source){
 			if (matches > 0){
-			    println("target:<sourcefile>");
-				println("source:<file>");
-				println("sampleCode:<sampleCode>");
 				total += matches; 
 	 		} 	    
 	    }else{	
-			if (matches > size(fileBlocks)){
-			    println("target:<sourcefile>");
-				println("source:<file>");
-				println("sampleCode:<sampleCode>");
-				total += matches - size(fileBlocks); 
+			if (matches > size(blocks)){
+				total += matches - size(blocks); 
 	 		}
- 		} 		
-// 		matches += compareBlock(codeBlock, file);
+ 		}
+ 		if(showoutput){
+ 			printInfo(target, source, sampleCode); 
+ 		}		
  	}
  	return total;
+}
+
+//Find Clones for the contents of the given file
+ int findclone(loc file, bool showoutput){
+
+ int total = 0;
+
+ list[str] filecontent = projectContents[file];
+
+// make blocks of 6 lines and compare with all files, we get at least 1 match 
+ list[str] fileBlocks = makeBlocks(6, filecontent);
+ 
+ total = searchInFiles(fileBlocks, file, showoutput);
+ 
+// when done, remove proccessed file from collection (prevents double detection, improves performance)
+ strProjectContents -= (file : "");
+ return total;
 }
 
