@@ -37,7 +37,7 @@ public void runMetrics(loc path) {
   scores["Unit size score"] = unitSize(m3);
   scores["Unit complexity score"] = cyclomaticComplexity(m3);
   scores["Unit Test Coverage"] = testCoverage(m3);
-  scores["Duplication"] = findClones(path);
+  scores["Duplication"] = findClones(path, false);
   
   scorePrinter(scores);
   
@@ -52,4 +52,5 @@ public void runMetrics(loc path) {
   println("Testability score: <aggregateScores(testability)>");
   
   println("\nMaintainability score: <aggregateScores(toList(range(scores)))>");
+
 }

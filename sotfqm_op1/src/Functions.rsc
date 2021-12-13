@@ -20,6 +20,31 @@ public str trimSinglelineComments(str line) {
   return line;
 }
 
+// Eliminates imports
+public str trimJavaHead(str line) {
+//Regexp Search for import  (empty String is returned)
+  if(/import/ := trim(line)) {
+    return "";
+  }
+  if(/package/ := trim(line)) {
+    return "";
+  }
+  return line;
+}
+
+// Eliminates javadoc, block starts with /** ends with */
+public list[str] trimJavaDoc(list[str] lines) {
+  str startStr = "/**";
+  str endStr = "*/";
+  try {
+    container = zip([0..(size(lines))], lines); //zip makes a list of pairs from 2+ lists
+    tuple[int,int] commentStart = lazyFind(container, startStr);
+    tuple[int,int] commentEnd = lazyFind(container, endStr);
+    list[str] trim = deleteBetween(lines, commentStart, <commentEnd[0], commentEnd[1]+size(endStr)>);
+    return trimMultilineComments(trim);
+  } catch: return lines;
+}
+
 // Eliminates Multiple line comments, block starts with /* ends with */
 public list[str] trimMultilineComments(list[str] lines) {
   str startStr = "/*";
@@ -164,6 +189,10 @@ public list[str] trimLoc(loc content) {
   list[str] objectContent = readFileLines(content);
 // Replace Multiline comment with empty
   objectContent = trimMultilineComments(objectContent);
+// Replace javadoc with empty
+  objectContent = trimJavaDoc(objectContent);
+// Replace imports and package with empty
+  objectContent = mapper(objectContent, trimJavaHead);
 // Replace single line comments with empty
   objectContent = mapper(objectContent, trimSinglelineComments);
 // Filter Empty
