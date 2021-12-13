@@ -143,6 +143,20 @@ public void scorePrinter(map[str, str] scores) {
   for (<str name, str score> <- toRel(scores)){
   	println("<name>: <score>");
   }
+  println();
+}
+
+public str aggregateScores(list[str] scores){
+	// -- - o + ++
+	// 1  2 3 4 5
+	map[str, int] encoder = ("--": 1, "-": 2, "o": 3, "+": 4, "++": 5);
+	list[int] encoded = [ encoder[sc] | sc <- scores];
+
+	int mean = sum(encoded)/size(scores);
+	str result = invertUnique(encoder)[mean];
+	
+	//println("<mean> and <result>");
+	return result;
 }
 
 // Eliminate comments and empty lines

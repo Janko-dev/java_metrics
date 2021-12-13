@@ -80,7 +80,7 @@ public str testCoverage(model){
 	real numMethodsCalled = ( 0.0 | it + v | <_,v> <- toRel(allMethods));
 	// percentage test code coverage 
 	real coverage = numMethodsCalled / size(allMethods) * 100.0;
-	println("Test Code Coverage: <coverage>%");
+	println("Test Code Coverage: <coverage>");
 	return rating(coverage);
 }
 

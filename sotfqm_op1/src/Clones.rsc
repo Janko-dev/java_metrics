@@ -3,16 +3,15 @@ module Clones
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::FileSystem;
+
 import Volume;
 import String;
 import DateTime;
-import Map;
 import util::Resources;
 import List;
 import Set;
 import IO;
 import Functions;
-
 
 alias ProjectMap = map[loc file, list[str] strContent];
 alias strProjectMap = map[loc file, str Content];
@@ -25,7 +24,7 @@ set[loc] javaBestanden(loc project) {
    return { a | /file(a) <- r, a.extension == "java" };
 }
 
-public void findClones(loc m3){
+public str findClones(loc m3){
   
   set[loc] bestanden = javaBestanden(m3);
  
@@ -33,23 +32,39 @@ public void findClones(loc m3){
   
   strProjectContents = ( a:toString(trimLoc(a)) | a <- bestanden );
 	 
-  datetime startTime = now();
-  println("start");
-  println(startTime);
+  //datetime startTime = now();
+  //println("start");
+  //println(startTime);
   
-  int totalClones = 0;
+  int volume = sum([size(trimLoc(f)) | loc f <- bestanden]);
+  real totalClones = 0.0;
 
   for(fileContent <- projectContents){
 //Process each file in project
   	 totalClones += findclone2(fileContent);	
   }
  
-  totalClones = totalClones / 2;
-  println("Clones found:");
-  println(totalClones); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
-  println(now());
+  real duplication = totalClones / 2 / volume * 100;
+  
+  println("Duplication: <totalClones/volume * 100>\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
+  //println(now());
+  
+  return rating(duplication);
 }
 
+public str rating(real dups){
+	if (dups < 3) {
+		return "++";
+	} else if (dups >= 3 && dups < 5) {
+		return "+";
+	} else if (dups >= 5 && dups < 10) {
+		return "o";
+	} else if (dups >= 10 && dups < 20) {
+		return "-";
+	} else {
+		return "--";
+	}
+}
 
  int findclone2(loc file){
 // Get all files and store them as a List of strings 
@@ -89,16 +104,16 @@ public void findClones(loc m3){
 	    }
 	    if(sourcefile != file){
 			if (matches > 0){
-			    println("target:<sourcefile>");
-				println("source:<file>");
-				println("sampleCode:<sampleCode>");
+			 //   println("target:<sourcefile>");
+				//println("source:<file>");
+				//println("sampleCode:<sampleCode>");
 				total += matches; 
 	 		} 	    
 	    }else{	
 			if (matches > size(fileBlocks)){
-			    println("target:<sourcefile>");
-				println("source:<file>");
-				println("sampleCode:<sampleCode>");
+			 //   println("target:<sourcefile>");
+				//println("source:<file>");
+				//println("sampleCode:<sampleCode>");
 				total += matches - size(fileBlocks); 
 	 		}
  		} 		
