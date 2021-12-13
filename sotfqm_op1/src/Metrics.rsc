@@ -5,11 +5,13 @@ import lang::java::jdt::m3::Core;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::FileSystem;
+
 import Volume;
 import UnitSize;
 import Clones;
 import Functions;
 import CyclomaticComplexity;
+import TestCoverage;
 
 public void runMetricsHSQL() {
   loc hsql = |project://hsqldb/|;
@@ -31,6 +33,7 @@ public void runMetrics(loc path) {
   scores["Volume score"] = volume(path);
   scores["Unit size score"] = unitSize(m3);
   scores["Unit complexity score"] = cyclomaticComplexity(m3);
+  scores["Test Code Coverage"] = testCoverage(m3);
   
   scorePrinter(scores);
   findClones(path);
