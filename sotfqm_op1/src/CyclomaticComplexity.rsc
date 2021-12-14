@@ -99,5 +99,3 @@ private int isLastReturn(Statement ret, Statement methodBody){
 	}
 	return 0;
 }
-
-
