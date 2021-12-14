@@ -13,9 +13,6 @@ import Functions;
 import CyclomaticComplexity;
 import TestCoverage;
 
-import Map;
-import Set;
-
 public void runMetricsHSQL() {
   loc hsql = |project://hsqldb/|;
   println("HSql");
@@ -41,16 +38,16 @@ public void runMetrics(loc path) {
   
   scorePrinter(scores);
   
-  list[str] analysability = [scores["Volume score"], scores["Duplication"], scores["Unit size score"], scores["Unit Test Coverage"], "o"];
-  list[str] changeability = [scores["Unit complexity score"], scores["Duplication"], "-"];
-  list[str] stability     = [scores["Unit Test Coverage"], "o"];
-  list[str] testability   = [scores["Unit complexity score"], scores["Unit size score"], scores["Unit Test Coverage"], "-"];
+  str analysability = aggregateScores([scores["Volume score"], scores["Duplication"], scores["Unit size score"], scores["Unit Test Coverage"], "o"]);
+  str changeability = aggregateScores([scores["Unit complexity score"], scores["Duplication"], "-"]);
+  str stability     = aggregateScores([scores["Unit Test Coverage"], "o"]);
+  str testability   = aggregateScores([scores["Unit complexity score"], scores["Unit size score"], scores["Unit Test Coverage"], "-"]);
   
-  println("Analysability score: <aggregateScores(analysability)>");
-  println("Changeability score: <aggregateScores(changeability)>");
-  println("Stability score: <aggregateScores(stability)>");
-  println("Testability score: <aggregateScores(testability)>");
+  println("Analysability score: <analysability>");
+  println("Changeability score: <changeability>");
+  println("Stability score: <stability>");
+  println("Testability score: <testability>");
   
-  println("\nMaintainability score: <aggregateScores(toList(range(scores)))>");
+  println("\nMaintainability score: <aggregateScores([analysability, changeability, stability, testability])>");
 
 }

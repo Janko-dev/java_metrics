@@ -180,7 +180,6 @@ public str aggregateScores(list[str] scores){
 	int mean = sum(encoded)/size(scores);
 	str result = invertUnique(encoder)[mean];
 	
-	//println("<mean> and <result>");
 	return result;
 }
 
