@@ -8,22 +8,25 @@ import util::FileSystem;
 import Functions;
 
 // Calulates Volume of project
-public str volume(loc m3) {
+public tuple[int, str] volume(loc m3) {
   int totalLoc = sum([linesPerFile(f)| /file(f) <- crawl(m3), f.extension == "java"]);
   println("Lines of Code: <totalLoc>");
   
+  tuple[int lines, str score] vol = <0, "">;
 // SIG Values from A practical Model for Measuring Maintainability  
+  vol.lines = totalLoc;
   if(totalLoc <= 66000) {
-    return "++";
+    vol.score = "++";
   } else if(totalLoc <= 246000) {
-    return "+";
+     vol.score = "+";
   } else if(totalLoc <= 665000) {
-    return "o";
+       vol.score = "o";
   } else if(totalLoc <= 1310000) {
-    return "-";
+       vol.score = "-";
   } else {
-  	return "--";
+       vol.score = "--";
   }
+  return vol;
 }
 
 // Calculates number of lines per file

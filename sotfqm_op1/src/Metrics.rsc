@@ -30,11 +30,14 @@ public void runMetrics(loc path) {
   println("----");
   map[str, str] scores = ();
   
-  scores["Volume score"] = volume(path);
+// Calculate volume once  
+  tuple[int lines, str score] vol = volume(path);
+  
+  scores["Volume score"] = vol.score;
   scores["Unit size score"] = unitSize(m3);
   scores["Unit complexity score"] = cyclomaticComplexity(m3);
   scores["Unit Test Coverage"] = testCoverage(m3);
-  scores["Duplication"] = findClones(path, false);
+  scores["Duplication"] = findClones(path, false, vol.lines);
   
   scorePrinter(scores);
   

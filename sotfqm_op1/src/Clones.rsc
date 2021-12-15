@@ -17,6 +17,8 @@ import Functions;
 alias ProjectMap = map[loc file, list[str] strContent];
 alias strProjectMap = map[loc file, str Content];
 
+int blockSize = 6;
+
 //Store all java files in a map, with file contents as a list of strings
 //Used to split each file in blocks of 6 lines of code
 ProjectMap projectContents = ();
@@ -33,7 +35,7 @@ set[loc] readJavaFiles(loc project) {
 
 
 //Finds clones in a projoject
-public str findClones(loc m3, bool showoutput){
+public str findClones(loc m3, bool showoutput, int totalLines){
 
   //datetime startTime = now();
   set[loc] allFiles = readJavaFiles(m3);
@@ -42,17 +44,18 @@ public str findClones(loc m3, bool showoutput){
   
   strProjectContents = ( a:toString(trimLoc(a)) | a <- allFiles );
  
-  int volume = sum([size(trimLoc(f)) | loc f <- allFiles]);
   real totalClones = 0.0;
 
   for(fileContent <- projectContents){
 //Process each java file in project
   	 totalClones += findclone(fileContent, showoutput);	
   }
- 
-  real duplication = totalClones / 2 / volume * 100;
-  
-  println("Duplication: <totalClones/volume * 100>\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
+//Once a file is processed, its removed from the file pool
+//Improves runtime and /2 is not needed 
+// A duplicate is an identical block of 6 lines
+  real duplication = blockSize * 100 * totalClones / totalLines;
+  println("Duplication hits: <totalClones>\n");
+  println("Duplication%: <blockSize * totalClones/totalLines * 100>\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
   //println(now());
   
   return rating(duplication);
@@ -89,10 +92,13 @@ list[str] makeBlocks(int blockSize, list[str] content){
 }
 
 // Print clone information
-void printInfo(loc target, loc source, str sampleCode){
-    println("target:<target>");
-	println("source:<source>");
-	println("sampleCode:<sampleCode>");
+void printInfo(loc target, loc source, str sampleCode, int total){
+	if(total >= 1){
+	    println("target:<target>");
+		println("source:<source>");
+		println("Duplicates:<total>");
+		println("sampleCode:<sampleCode>");
+	}
 }
 
 // String comparison of each given block with the content collection
@@ -105,22 +111,22 @@ int searchInFiles(list[str] blocks, loc source, bool showoutput){
  	 	sampleCode = "";
  		targetContent = strProjectContents[target];
 		for(block <- blocks){
-	    	matches += size(findAll(targetContent, block));
-	    	if (matches >= 1 && sampleCode == ""){
-	    		sampleCode = block;
+	    	int blockFound = size(findAll(targetContent, block));
+	    	if(target != source){
+	    		matches += blockFound;
+	    	}else if(blockFound > 1){ 
+	    		matches += blockFound - 1;
 	    	}
+	    	if (matches >= 1 && sampleCode == ""){
+	    		sampleCode = block;	    		
+	    	}
+		    if(matches > 0){
+		    	targetContent = replaceAll(targetContent, block, "");
+		    }		    	
 	    }
-	    if(target != source){
-			if (matches > 0){
-				total += matches; 
-	 		} 	    
-	    }else{	
-			if (matches > size(blocks)){
-				total += matches - size(blocks); 
-	 		}
- 		}
+		total += matches; 
  		if(showoutput){
- 			printInfo(target, source, sampleCode); 
+ 			printInfo(target, source, sampleCode, matches); 
  		}		
  	}
  	return total;
@@ -134,7 +140,7 @@ int searchInFiles(list[str] blocks, loc source, bool showoutput){
 	 list[str] filecontent = projectContents[file];
 	
 	// make blocks of 6 lines and compare with all files, we get at least 1 match 
-	 list[str] fileBlocks = makeBlocks(6, filecontent);
+	 list[str] fileBlocks = makeBlocks(blockSize, filecontent);
 	 
 	 total = searchInFiles(fileBlocks, file, showoutput);
 	 
