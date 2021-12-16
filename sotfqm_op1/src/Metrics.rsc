@@ -6,6 +6,8 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::FileSystem;
 
+import DateTime;
+
 import Volume;
 import UnitSize;
 import Clones;
@@ -26,6 +28,9 @@ public void runMetricsSmallSql() {
 }
 
 public void runMetrics(loc path) {
+  
+  datetime startTime = now();
+  
   M3 m3 = createM3FromEclipseProject(path);
   println("----");
   map[str, str] scores = ();
@@ -52,5 +57,10 @@ public void runMetrics(loc path) {
   println("Testability score: <testability>");
   
   println("\nMaintainability score: <aggregateScores([analysability, changeability, stability, testability])>");
+
+  datetime endTime = now();
+  
+  dur = endTime - startTime;
+  println("Runtime: <dur.hours> hours <dur.minutes> minutes");    
 
 }
