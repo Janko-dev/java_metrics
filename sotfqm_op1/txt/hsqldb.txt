@@ -1,0 +1,35 @@
+HSql
+----
+Lines of Code: 182987
+number of units: 10235
+--------- Unit Size ---------
+Low:            29.98316870000
+Moderate:       19.08490150000
+High:           18.72758126000
+Very High:      32.20434855000
+
+--- Cyclomatic Complexity ---
+Low:            58.09603944000
+Moderate:       17.41877390000
+High:           13.09950844000
+Very High:      11.38567823000
+
+Test Code Coverage: 7.723530094000
+Duplication hits: 4394.0
+
+Duplication%: 14.4075808700
+
+Duplication: -
+Unit size score: --
+Unit Test Coverage: --
+Unit complexity score: --
+Volume score: +
+
+Analysability score: -
+Changeability score: --
+Stability score: --
+Testability score: --
+
+Maintainability score: --
+Runtime: 1 hours 46 minutes 31 seconds
+
