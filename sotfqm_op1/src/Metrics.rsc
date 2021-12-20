@@ -28,8 +28,7 @@ public void runMetricsSmallSql() {
 }
 
 public void runMetrics(loc path) {
-  
-  datetime startTime = now();
+   datetime startTime = now();
   
   M3 m3 = createM3FromEclipseProject(path);
   println("----");
@@ -46,10 +45,10 @@ public void runMetrics(loc path) {
   
   scorePrinter(scores);
   
-  str analysability = aggregateScores([scores["Volume score"], scores["Duplication"], scores["Unit size score"], scores["Unit Test Coverage"], "o"]);
-  str changeability = aggregateScores([scores["Unit complexity score"], scores["Duplication"], "-"]);
-  str stability     = aggregateScores([scores["Unit Test Coverage"], "o"]);
-  str testability   = aggregateScores([scores["Unit complexity score"], scores["Unit size score"], scores["Unit Test Coverage"], "-"]);
+  str analysability = aggregateScores([scores["Volume score"], scores["Duplication"], scores["Unit size score"], scores["Unit Test Coverage"]]);
+  str changeability = aggregateScores([scores["Unit complexity score"], scores["Duplication"]]);
+  str stability     = aggregateScores([scores["Unit Test Coverage"]]);
+  str testability   = aggregateScores([scores["Unit complexity score"], scores["Unit size score"], scores["Unit Test Coverage"]]);
   
   println("Analysability score: <analysability>");
   println("Changeability score: <changeability>");
@@ -59,8 +58,7 @@ public void runMetrics(loc path) {
   println("\nMaintainability score: <aggregateScores([analysability, changeability, stability, testability])>");
 
   datetime endTime = now();
-  
   dur = endTime - startTime;
-  println("Runtime: <dur.hours> hours <dur.minutes> minutes");    
+  println("Runtime: <dur.hours> hours <dur.minutes> minutes <dur.seconds> seconds");   
 
 }
