@@ -3,21 +3,21 @@ SmallSql
 Lines of Code: 24308
 number of units: 2572
 --------- Unit Size ---------
-Low:            47.12909966000
-Moderate:       21.64077405000
-High:           15.89897338000
-Very High:      15.33115290000
+Low:            47.12909966000 %
+Moderate:       21.64077405000 %
+High:           15.89897338000 %
+Very High:      15.33115290000 %
 
 --- Cyclomatic Complexity ---
-Low:            69.35150962000
-Moderate:       9.537752604000
-High:           9.912158595000
-Very High:      11.19857918000
+Low:            69.35150962000 %
+Moderate:       9.537752604000 %
+High:           9.912158595000 %
+Very High:      11.19857918000 %
 
-Test Code Coverage: 14.33164906000
+Test Code Coverage: 14.33164906000 %
 Duplication hits: 174.0
 
-Duplication%: 4.29488234300
+Duplication: 4.29488234300 %
 
 Duplication: +
 Unit size score: --
