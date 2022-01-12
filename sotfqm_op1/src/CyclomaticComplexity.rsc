@@ -17,7 +17,8 @@ alias UnitCC = lrel[str, int, int];
 public void run(){
 
 	//loc path = |project://smallsql/|;
-	loc path = |project://hsqldb/|;
+	//loc path = |project://hsqldb/|;
+	loc path = |project://JabberPoint|;
 	
 	M3 model = createM3FromEclipseProject(path);
 	cyclomaticComplexity(model, path);
@@ -29,7 +30,7 @@ public str cyclomaticComplexity(M3 model, loc path){
 	map[str, UnitCC] complexityUnitMetric = calCCAndUnitSize(model);
 	
 	// Write to .txt file
-	writeTextValueFile(|project://sotfqm_op1/data/| + "<path.authority>.txt", complexityUnitMetric);
+	writeTextValueFile(|project://sotfqm_op1/data/| + "<path.authority>_unitcc.txt", complexityUnitMetric);
 	
 	// aggregate measured data in categories 
 	map[str, real] risk = riskMapping(complexityUnitMetric);
@@ -116,12 +117,13 @@ public int CCPerUnit(Statement methodBody){
 		//case \continue(_): n+=1;
 		case \try(_,list[Statement] catchClauses): n+=size(catchClauses);
 		case \try(_,list[Statement] catchClauses,_): n+=size(catchClauses) + 1;
-		case \conditional(_,_,_): n+=1; // even nog bespreken met alfredo, want deze heb ik toegevoegd na het inleveren van de meetresultaten
+		case \conditional(_,_,_): n+=1;
 		case ret: \return(_): n+=isLastReturn(ret, methodBody);
 		case ret: \return(): n+=isLastReturn(ret, methodBody);
 		case "&&": n+=1;
 		case "||": n+=1;
 	}
+	
 	return n;
 }
 

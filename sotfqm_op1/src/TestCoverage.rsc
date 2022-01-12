@@ -8,16 +8,20 @@ import Map;
 import List;
 import String;
 
+import ValueIO;
 
 public void run(){
-	//M3 model = createM3FromEclipseProject(|project://hsqldb|);
-	//M3 model = createM3FromEclipseProject(|project://smallsql|);
-	M3 model = createM3FromEclipseProject(|project://JabberPoint|);
 	
-	testCoverage(model);
+	//loc path = |project://smallsql/|;
+	//loc path = |project://hsqldb/|;
+	loc path = |project://JabberPoint|;
+	
+	M3 model = createM3FromEclipseProject(path);
+	
+	testCoverage(model, path);
 }
 
-public str testCoverage(model){
+public str testCoverage(M3 model, loc path){
 
 	// map of all methods that are:
 	// 1. not associated by name with "test" 
@@ -76,11 +80,14 @@ public str testCoverage(model){
 		}
 	}
 	
+	// Write to .txt file
+	writeTextValueFile(|project://sotfqm_op1/data/| + "<path.authority>_testcoverage.txt", allMethods);
+	
 	// reducer that counts all values in the allMethods map 
 	real numMethodsCalled = ( 0.0 | it + v | <_,v> <- toRel(allMethods));
 	// percentage test code coverage 
 	real coverage = numMethodsCalled / size(allMethods) * 100.0;
-	println("Test Code Coverage: <coverage>");
+	println("Test Code Coverage: <coverage> %");
 	return rating(coverage);
 }
 

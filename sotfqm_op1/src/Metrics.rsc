@@ -39,8 +39,8 @@ public void runMetrics(loc path) {
   
   scores["Volume score"] = vol.score;
   scores["Unit size score"] = unitSize(m3);
-  scores["Unit complexity score"] = cyclomaticComplexity(m3);
-  scores["Unit Test Coverage"] = testCoverage(m3);
+  scores["Unit complexity score"] = cyclomaticComplexity(m3, path);
+  scores["Unit Test Coverage"] = testCoverage(m3, path);
   scores["Duplication"] = findClones(path, false, vol.lines);
   
   scorePrinter(scores);
