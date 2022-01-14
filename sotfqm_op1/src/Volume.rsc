@@ -9,7 +9,8 @@ import Functions;
 
 // Calulates Volume of project
 public tuple[int, str] volume(loc m3) {
-  int totalLoc = sum([linesPerFile(f)| /file(f) <- crawl(m3), f.extension == "java"]);
+  int totalLoc = sum([linesPerFile(f)| /file(f) <- crawl(m3), 
+  		f.extension == "java" && /src/i := f.path && !/doc\/verbatim/i := f.path]);
   println("Lines of Code: <totalLoc>");
   
   tuple[int lines, str score] vol = <0, "">;

@@ -13,6 +13,7 @@ import List;
 import Set;
 import IO;
 import Functions;
+import ValueIO;
 
 alias ProjectMap = map[loc file, list[str] strContent];
 alias strProjectMap = map[loc file, str Content];
@@ -27,10 +28,15 @@ ProjectMap projectContents = ();
 //Used to search for a particular code block in all files
 strProjectMap strProjectContents = ();
 
+//loc tmpClones = |project://sotfqm_op1/data/smallsql_clones.txt|;
+loc tmpClones = |project://sotfqm_op1/data/hsqldb_clones.txt|;
+map[loc file, int clones] clonesMap = ();
+
 //Reads java files from project
 set[loc] readJavaFiles(loc project) {
    Resource r = getProject(project);
-   return { a | /file(a) <- r, a.extension == "java" };
+return { a | /file(a) <- r,
+			 a.extension == "java" && /src/i := a.path && !/doc\/verbatim/i := a.path };
 }
 
 
@@ -53,12 +59,18 @@ public str findClones(loc m3, bool showoutput, int totalLines){
 //Once a file is processed, its removed from the file pool
 //Improves runtime and /2 is not needed 
 // A duplicate is an identical block of 6 lines
-  real duplication = blockSize * 100 * totalClones / totalLines;
-  println("Duplication hits: <totalClones>\n");
-  println("Duplication%: <blockSize * totalClones/totalLines * 100>\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
-  //println(now());
+  real duplication = blockSize * 100 * 2 * totalClones / totalLines;
+  println("Duplication hits: <2 * totalClones>\n");
+  println("Duplication%: <blockSize * 2 * totalClones/totalLines * 100>\n"); 
+  //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
+  
+//  writeCache();
   
   return rating(duplication);
+}
+
+public void writeCache() {
+   writeTextValueFile(tmpClones, clonesMap);
 }
 
 public str rating(real dups){
@@ -146,6 +158,9 @@ int searchInFiles(list[str] blocks, loc source, bool showoutput){
 	 
 	// when done, remove proccessed file from collection (prevents double detection, improves performance)
 	 strProjectContents -= (file : "");
+	 
+//	 clonesMap += (file : total);
+	 	 
 	 return total;
 }
 

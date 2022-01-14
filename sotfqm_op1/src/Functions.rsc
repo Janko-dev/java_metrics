@@ -191,7 +191,7 @@ public list[str] trimLoc(loc content) {
 // Replace javadoc with empty
   objectContent = trimJavaDoc(objectContent);
 // Replace imports and package with empty
-  objectContent = mapper(objectContent, trimJavaHead);
+// objectContent = mapper(objectContent, trimJavaHead);
 // Replace single line comments with empty
   objectContent = mapper(objectContent, trimSinglelineComments);
 // Filter Empty
