@@ -33,7 +33,6 @@ set[loc] readJavaFiles(loc project) {
    return { a | /file(a) <- r, a.extension == "java" };
 }
 
-
 //Finds clones in a projoject
 public str findClones(loc m3, bool showoutput, int totalLines){
 
@@ -54,8 +53,8 @@ public str findClones(loc m3, bool showoutput, int totalLines){
 //Improves runtime and /2 is not needed 
 // A duplicate is an identical block of 6 lines
   real duplication = blockSize * 100 * totalClones / totalLines;
-  println("Duplication hits: <totalClones>\n");
-  println("Duplication%: <blockSize * totalClones/totalLines * 100>\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
+  println("Duplication hits: <totalClones>");
+  println("Duplication: <blockSize * totalClones/totalLines * 100> %\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
   //println(now());
   
   return rating(duplication);

@@ -22,10 +22,10 @@ alias UnitCC = lrel[str uName, int uSize, int cc];
 // global vars
 Figure dataView = box(fillColor(rgb(0, 0, 0, 0.0)));
 bool selected = false;
-map[str, str] ratingColorMapper = ("--":"red", "-":"Salmon", "o":"white", "+":"Chartreuse", "++":"Lime");
 
+//map[str, str] ratingColorMapper = ("--":"red", "-":"Salmon", "o":"white", "+":"Chartreuse", "++":"Lime");
 // point generator
-Figure point(num x, num y) = ellipse(shrink(0.05), fillColor("red"), align(x, y));
+//Figure point(num x, num y) = ellipse(shrink(0.05), fillColor("red"), align(x, y));
 
 public void run(){
 	
@@ -34,76 +34,81 @@ public void run(){
 	
 	loc ccPath = |project://sotfqm_op1/data/hsqldb_unitcc.txt|;
 	loc tCoverPath = |project://sotfqm_op1/data/hsqldb_testcoverage.txt|;
+	loc dupsPath = |project://sotfqm_op1/data/hsqldb_dups.txt|;
 	
 	//loc ccPath = |project://sotfqm_op1/data/smallsql_unitcc.txt|;
 	//loc tCoverPath = |project://sotfqm_op1/data/smallsql_testcoverage.txt|;
+	//loc dupsPath = |project://sotfqm_op1/data/smallsql_dups.txt|;
 	
-	renderTreemap(ccPath, tCoverPath);
+	renderTreemap(ccPath, tCoverPath, dupsPath);
 }
 
-public void renderScatterplot(loc path){
+//public void renderScatterplot(loc path){
+//	
+//	map[str, UnitCC] ccMetric = readTextValueFile(#map[str, UnitCC], path);
+//
+//	UnitCC mapContent = joinMapContent(ccMetric);
+//	int maxCC = max(mapContent.cc);
+//	int maxUnit = max(mapContent.uSize);
+//
+//	Figure scatterplot = overlay([ 
+//		point(
+//			valueMapper(usize, 0, maxUnit, 0.0, 1.0), 
+//			valueMapper(cc, 0, maxCC, 1.0, 0.0)
+//		) | <_, int usize, int cc> <- mapContent ], width(800), height(800));
+//	
+//	render(scatterplot);
+//}
+
+// Read the files containing the metric data of unit size, cyclomatic complexity, unit test coverage and duplication per file.
+// 
+public void renderTreemap(loc ccPath, loc tCoverPath, loc dupsPath){
 	
-	map[str, UnitCC] ccMetric = readTextValueFile(#map[str, UnitCC], path);
-
-	UnitCC mapContent = joinMapContent(ccMetric);
-	int maxCC = max(mapContent.cc);
-	int maxUnit = max(mapContent.uSize);
-
-	Figure scatterplot = overlay([ 
-		point(
-			valueMapper(usize, 0, maxUnit, 0.0, 1.0), 
-			valueMapper(cc, 0, maxCC, 1.0, 0.0)
-		) | <_, int usize, int cc> <- mapContent ], width(800), height(800));
-	
-	render(scatterplot);
-}
-
-public void renderTreemap(loc ccPath, loc tCoverPath){
-
+	// read metric data
 	map[str, int] tCoverMetric = readTextValueFile(#map[str, int], tCoverPath);
+	map[str, int] dupsMetric = (f.path:n | <loc f, int n> <- toRel(readTextValueFile(#map[loc, int], dupsPath)));
 	map[str, UnitCC] ccMetric = readTextValueFile(#map[str, UnitCC], ccPath);
 	
-	UnitCC mapContent = joinMapContent(ccMetric);
-	int maxCC = max(mapContent.cc);
-	int maxUnit = max(mapContent.uSize);
+	UnitCC joinedContent = reducer(range(ccMetric), UnitCC (UnitCC a, UnitCC b) {return a + b;}, []);
 	
-	list[Figure] tmap = [ 
+	// calculate maxima for visualisation 
+	int maxDups = max(range(dupsMetric));
+	int maxCC = max(joinedContent.cc);
+	int maxUnit = max(joinedContent.uSize);
+	
+	int totalDups = (0 | it + n | <_, int n> <- toRel(dupsMetric));
+	
+	// construct the list of files, each containing a treemap of methods
+	list[Figure] tmap = [
 		box(
-			treemap([box(area(s), fillColor(lerpColor(max(cont.cc), maxCC, "PaleTurquoise", "Teal"))) | <_, int s, int cc> <- cont], shrink(0.9)), // max cc per class gebruikt om overzichtelijk te houden maar kan ook cc per method weergeven
+			treemap([box(area(s), fillColor(lerpColor(max(cont.cc), maxCC, "PaleTurquoise", "Teal"))) | <_, int s, _> <- cont], shrink(0.9)),
 			area(valueMapper(sum([0]+cont.uSize), 1, maxUnit, 10, 30)),
-			onClickElement(fpath, cont, maxCC, tCoverMetric),
-			//fillColor(meanTestCoverage(fpath, tCoverMetric, size(cont))),
-			lineColor(rgb(0, 0, 0, 0.0))
-			)
+			onClickElement(fpath, cont, maxCC, tCoverMetric, dupsMetric[fpath], totalDups),
+			fillColor(lerpColor(dupsMetric[fpath], maxDups, "white", "DarkRed")))
 	 	| <str fpath, UnitCC cont> <- toList(ccMetric)];
 	
 	render(computeFigure(Figure () {return overlay([treemap(tmap), dataView]);}));
 }
 
-public str meanTestCoverage(str fpath, map[str, int] tCovermetric, int numUnits){
-	str className = parseClassName(fpath);
-	real sumCovered = toReal((0 | it + covered | <str name, int covered> <- toRel(tCovermetric), substring(name, 1, findLast(name, "/")) == className));
-	
-	return ratingColorMapper[rating(sumCovered/numUnits*100.0)];
-}
-
-public FProperty onClickElement(str fpath, UnitCC content, int maxCC, map[str, int] tCoverMetric){
+// on click handler that opens a popup and shows the treemap of methods inside a java file
+public FProperty onClickElement(str fpath, UnitCC content, int maxCC, map[str, int] tCoverMetric, int dups, int totalDups){
 	return onMouseDown(bool (int _, map[KeyModifier,bool] _) {
 		
-		
 		if (!selected) {
-
+			
+			str trimmedPath = substring(fpath, findLast(fpath, "/") + 1, findFirst(fpath, "."));
+			
 			list[Figure] tmap = [box(
-				box(fillColor(lerpColor(cc, maxCC, "PaleTurquoise", "Teal")), shrink(0.9)),
+				ellipse(shrink(0.5), aspectRatio(1.0), testCoverageFillColor(trimmedPath, name, tCoverMetric)),
+				fillColor(lerpColor(cc, maxCC, "PaleTurquoise", "Teal")),
 				area(s),
-				//testCoverageLineColor(tCoverMetric, name, parseClassName(fpath)),
-				//fillColor(lerpColor(cc, maxCC, "PaleTurquoise", "Teal")),
 				onHover(name, s, cc)
 				)| <str name, int s, int cc> <- content];
 			
+			// set dataView to the popup with treemap of selected class
 			dataView = box(
 				vcat([
-						text("Class path: <fpath>\t\t\tTotal unit size: <sum(content.uSize)> LOC\t\t\tTotal Complexity: <sum(content.cc)>", fontBold(true)), 
+						getFileData(fpath, sum(content.uSize), sum(content.cc), <dups, totalDups>), 
 						treemap(tmap)
 					], 
 					gap(10), 
@@ -115,6 +120,7 @@ public FProperty onClickElement(str fpath, UnitCC content, int maxCC, map[str, i
 			selected = true;
 		} else {
 			selected = false;
+			// make dataView invisible when clicking on the screen again
 			dataView = box(fillColor(rgb(0, 0, 0, 0.0)));
 		}
 		
@@ -122,35 +128,27 @@ public FProperty onClickElement(str fpath, UnitCC content, int maxCC, map[str, i
 	});
 }
 
+// construct and return text figure of a java file including metrics
+public Figure getFileData(str fpath, int locUnit, int totalCC, tuple[int amt, int total] dups){
+	return text("Class path: <fpath>\t\tTotal unit size: <locUnit> LOC\t\tTotal Complexity: <totalCC>\t\tDuplicates: <dups.amt> hits (<precision(toReal(dups.amt)/dups.total*100, 3)> %)",
+				fontBold(true));
+}
+
+// sub treemap on hover method that shows a dialog with unit name, unit size and the cyclomatic complexity of set unit
 public FProperty onHover(str unitName, int usize, int cc){
-	return mouseOver(box(text("Unit name: <unitName>\nUnit size: <usize> LOC\nComplexity: <cc>"), resizable(false), grow(1.2)));
+	return mouseOver(box(text("Unit name: <unitName>\nUnit size: <usize> LOC\nComplexity: <cc>", fontBold(true)), resizable(false), grow(1.2)));
 }
 
-//public FProperty testCoverageLineColor(map[str, int] tCoverMetric, str methodName, str className){
-//	if (/(T|t)est/ := className){
-//		return fillColor("Yellow");
-//	} else if ("/<className>/<methodName>" notin tCoverMetric){
-//		//println("/<className>/<methodName>");
-//		// TODO: classname en method name zijn niet voldoende om door de covermetric te kijken
-//		//println(tCoverMetric);
-//		return fillColor("Gray");
-//	}
-//	return fillColor(tCoverMetric["/<className>/<methodName>"] == 1 ? "Lime" : "White");
-//}
-
-
-// parse the class name out of the string path
-public str parseClassName(str fpath){
-	int begin = findLast(fpath, "/") + 1;
-	int end = findFirst(fpath, ".");
-	if (begin >= end) throw "Error at parsing class path in meanTestCoverage";
+// Fill the ellipse with either white if the method is a testmethod, Chartreuse (green) if the method is tested or coral (orange) if the method has not been tested
+public FProperty testCoverageFillColor(str fpath, str methodName, map[str, int] tCoverMetric){
 	
-	return substring(fpath, begin, end);
-}
-
-// join lists of tuples in map into one list of tuples
-public UnitCC joinMapContent(map[str, UnitCC] input){
-	return reducer(range(input), UnitCC (UnitCC a, UnitCC b) {return a + b;}, []);
+	if ("<fpath>/<methodName>" notin tCoverMetric){
+		return fillColor("white");
+	} else if (tCoverMetric["<fpath>/<methodName>"] == 1){
+		return fillColor("Chartreuse");
+	} else {
+		return fillColor("Coral");
+	}
 }
 
 // maps a numeric value n from one number space (start1 - stop1) to another number space (start2 - stop2) 
