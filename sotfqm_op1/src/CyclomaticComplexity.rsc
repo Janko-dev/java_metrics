@@ -16,9 +16,9 @@ alias UnitCC = lrel[str, int, int];
 
 public void run(){
 
-	//loc path = |project://smallsql/|;
+	loc path = |project://smallsql/|;
 	//loc path = |project://hsqldb/|;
-	loc path = |project://JabberPoint|;
+	//loc path = |project://JabberPoint|;
 	
 	M3 model = createM3FromEclipseProject(path);
 	cyclomaticComplexity(model, path);
@@ -41,17 +41,10 @@ public str cyclomaticComplexity(M3 model, loc path){
 	return ratingCyclomaticComplexity(risk);;
 }
 
-
-
 // map metrics in the following categories: low, moderate, high and very high; based on the SIG categorization of Cyclomatic Complexity
 private map[str, real] riskMapping(map[str, UnitCC] CCmetrics){
 	map[str, real] risk = ("low" : 0.0, "moderate" : 0.0, "high" : 0.0, "veryHigh" : 0.0);
 	int totalLOC = 0;
-	
-	//lrel[str, int, int] joinedList = [];
-	//for (lrel[str, int, int] entry <- range(CCmetrics)) {
-	//	joinedList += entry;
-	//}
 	
 	UnitCC joinedList = reducer(range(CCmetrics), UnitCC (UnitCC a, UnitCC b) {return a + b;}, []);
 	
@@ -71,6 +64,20 @@ private map[str, real] riskMapping(map[str, UnitCC] CCmetrics){
 	return (k:v/totalLOC*100.0 | <k,v> <- toRel(risk));
 }
 
+// Rating based on the scoring scheme used by the Software Improvement Group (SIG)
+public str ratingCyclomaticComplexity(map[str, real] riskLevels) {
+  if(riskLevels["moderate"] <= 25 && riskLevels["high"] == 0 && riskLevels["veryHigh"] == 0) {
+    return "++";
+  } else if(riskLevels["moderate"] <= 30 && riskLevels["high"] <= 5 && riskLevels["veryHigh"] == 0) {
+    return "+";
+  } else if(riskLevels["moderate"] <= 40 && riskLevels["high"] <= 10 && riskLevels["veryHigh"] == 0) {
+    return "o";
+  } else if(riskLevels["moderate"] <= 50.3 && riskLevels["high"] <= 15 && riskLevels["veryHigh"] <= 5) {
+    return "-";
+  } else {
+    return "--";
+  }
+}
 
 // return list relation between unit size (per method) and cyclomatic complexity of set method
 private map[str, UnitCC] calCCAndUnitSize(M3 model){
@@ -111,10 +118,6 @@ public int CCPerUnit(Statement methodBody){
 		case \defaultCase(): n+=1;
 		case \while(_,_): n+=1;
 		case \do(_,_): n+=1;
-		//case \break(): n+=1;
-		//case \break(_): n+=1;
-		//case \continue(): n+=1;
-		//case \continue(_): n+=1;
 		case \try(_,list[Statement] catchClauses): n+=size(catchClauses);
 		case \try(_,list[Statement] catchClauses,_): n+=size(catchClauses) + 1;
 		case \conditional(_,_,_): n+=1;
@@ -123,12 +126,12 @@ public int CCPerUnit(Statement methodBody){
 		case "&&": n+=1;
 		case "||": n+=1;
 	}
-	
 	return n;
 }
 
-// determine if a statement is the last statement in a unit(method)
+// determine if a statement is the last statement in a unit (method)
 // in use: the last return statement in a method should not be counted as a linearly independent path
+// all return statements before cause linearly independent paths
 private int isLastReturn(Statement ret, Statement methodBody){
 	switch(methodBody) {
 		case \block(list[Statement] statements): return ret.src == statements[size(statements)-1].src ? 0 : 1;
