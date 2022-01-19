@@ -52,8 +52,8 @@ public void runMetrics(loc path) {
   
   println("Analysability score: <analysability>");
   println("Changeability score: <changeability>");
-  println("Stability score: <stability>");
-  println("Testability score: <testability>");
+  println("Stability score:     <stability>");
+  println("Testability score:   <testability>");
   
   println("\nMaintainability score: <aggregateScores([analysability, changeability, stability, testability])>");
 
