@@ -137,20 +137,6 @@ public str ratingUnitSize(map[str, real] riskLevels) {
   }
 }
 
-public str ratingCyclomaticComplexity(map[str, real] riskLevels) {
-  if(riskLevels["moderate"] <= 25 && riskLevels["high"] == 0 && riskLevels["veryHigh"] == 0) {
-    return "++";
-  } else if(riskLevels["moderate"] <= 30 && riskLevels["high"] <= 5 && riskLevels["veryHigh"] == 0) {
-    return "+";
-  } else if(riskLevels["moderate"] <= 40 && riskLevels["high"] <= 10 && riskLevels["veryHigh"] == 0) {
-    return "o";
-  } else if(riskLevels["moderate"] <= 50.3 && riskLevels["high"] <= 15 && riskLevels["veryHigh"] <= 5) {
-    return "-";
-  } else {
-    return "--";
-  }
-}
-
 //Output Unit size info
 public void resultsPrinter(map[str, real] riskLevels) {
   real low = riskLevels["low"];
@@ -191,7 +177,7 @@ public list[str] trimLoc(loc content) {
 // Replace javadoc with empty
   objectContent = trimJavaDoc(objectContent);
 // Replace imports and package with empty
-  objectContent = mapper(objectContent, trimJavaHead);
+// objectContent = mapper(objectContent, trimJavaHead);
 // Replace single line comments with empty
   objectContent = mapper(objectContent, trimSinglelineComments);
 // Filter Empty

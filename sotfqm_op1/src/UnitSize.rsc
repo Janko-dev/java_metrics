@@ -28,7 +28,7 @@ private map[str, real] calRiskLevels(list[loc] locMethods) {
   map[str, real] risks = ("low" : 0.0, "moderate" : 0.0, "high" : 0.0, "veryHigh" : 0.0);
   int totalLoc = 0;
 
-  // get unit size for each methos, linecount and total count
+  // get unit size for each method, linecount and total count
   // SIG thresholds  https://www.softwareimprovementgroup.com/wp-content/uploads/
   // 2021-SIG-TUViT-Evaluation-Criteria-Trusted-Product-Maintainability-Guidance-for-producers.pdf
   for(loc method <- locMethods) {

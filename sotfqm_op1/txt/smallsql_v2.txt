@@ -1,0 +1,34 @@
+SmallSql
+----
+Lines of Code: 24822
+number of units: 2572
+--------- Unit Size ---------
+Low:            47.12695889000
+Moderate:       21.63979105000
+High:           15.90279355000
+Very High:      15.33045651000
+
+--- Cyclomatic Complexity ---
+Low:            69.35298070000
+Moderate:       9.537294807000
+High:           9.911682826000
+Very High:      11.19804166000
+
+Test Code Coverage: 14.33164906000
+Duplication hits: 348.0
+
+Duplication%: 8.41189267600
+
+Duplication: o
+Unit size score: --
+Unit Test Coverage: --
+Unit complexity score: --
+Volume score: ++
+
+Analysability score: -
+Changeability score: -
+Stability score: --
+Testability score: --
+
+Maintainability score: --
+Runtime: 0 hours 1 minutes 18 seconds

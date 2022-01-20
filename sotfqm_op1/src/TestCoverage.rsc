@@ -8,21 +8,25 @@ import Map;
 import List;
 import String;
 
+import ValueIO;
 
 public void run(){
-	//M3 model = createM3FromEclipseProject(|project://hsqldb|);
-	//M3 model = createM3FromEclipseProject(|project://smallsql|);
-	M3 model = createM3FromEclipseProject(|project://JabberPoint|);
 	
-	testCoverage(model);
+	loc path = |project://smallsql/|;
+	//loc path = |project://hsqldb/|;
+	//loc path = |project://JabberPoint|;
+	
+	M3 model = createM3FromEclipseProject(path);
+	
+	testCoverage(model, path);
 }
 
-public str testCoverage(model){
+public str testCoverage(M3 model, loc path){
 
 	// map of all methods that are:
 	// 1. not associated by name with "test" 
 	// 2. and are defined as java methods (no constructors) 
-	map[str, int] allMethods = (trimArgs(m.path): 0 | m <- methods(model), 
+	map[str, int] allMethods = (parseMethodName(trimArgs(m.path)): 0 | m <- methods(model), 
 		!(/(t|T)est/ := m.path), 
 		m.scheme == "java+method");
 	
@@ -63,27 +67,32 @@ public str testCoverage(model){
 				// value rec is either the name of a local variable, the name of a method arg, the name of a class field or the name of a class
 				// by determining if rec is in either localvars/args/fields, we can acquire the class name and set allMethods
 				// if rec is either a direct instantiation of an object or the method is a static method, we can use rec directly to query the map
-				if (rec in localVars){
-					allMethods["/<localVars[rec]>/<name>"] = 1;
-				} else if (rec in args) {
-					allMethods["/<args[rec]>/<name>"] = 1;
-				} else if (rec in fields) {
-					allMethods["/<fields[rec]>/<name>"] = 1;
-				} else {
-					allMethods["/<rec>/<name>"] = 1;
+				if (rec in localVars && "<localVars[rec]>/<name>" in allMethods){
+					allMethods["<localVars[rec]>/<name>"] = 1;
+				} else if (rec in args && "<args[rec]>/<name>" in allMethods) {
+					allMethods["<args[rec]>/<name>"] = 1;
+				} else if (rec in fields && "<fields[rec]>/<name>" in allMethods) {
+					allMethods["<fields[rec]>/<name>"] = 1;
+				} else if ("<rec>/<name>" in allMethods){
+					allMethods["<rec>/<name>"] = 1;
 				}
 			}
 		}
 	}
 	
+	// Write to .txt file
+	writeTextValueFile(|project://sotfqm_op1/data/| + "<path.authority>_testcoverage.txt", allMethods);
+	
 	// reducer that counts all values in the allMethods map 
 	real numMethodsCalled = ( 0.0 | it + v | <_,v> <- toRel(allMethods));
+	
 	// percentage test code coverage 
 	real coverage = numMethodsCalled / size(allMethods) * 100.0;
-	println("Test Code Coverage: <coverage>");
+	println("Test Code Coverage: <coverage> %");
 	return rating(coverage);
 }
 
+// Rating based on the scoring scheme used by the Software Improvement Group (SIG)
 public str rating(real coverage){
 	if (coverage < 20) {
 		return "--";
@@ -96,6 +105,13 @@ public str rating(real coverage){
 	} else {
 		return "++";
 	}
+}
+
+// return the "class/method" from a path
+public str parseMethodName(str fpath){
+	list[str] splitPath = split("/", fpath);
+	list[str] classMethod = slice(splitPath, size(splitPath)-2, 2);
+	return intercalate("/", classMethod);
 }
 
 // find first string in an Algebraic Data Type

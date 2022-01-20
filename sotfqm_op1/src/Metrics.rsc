@@ -39,21 +39,21 @@ public void runMetrics(loc path) {
   
   scores["Volume score"] = vol.score;
   scores["Unit size score"] = unitSize(m3);
-  scores["Unit complexity score"] = cyclomaticComplexity(m3);
-  scores["Unit Test Coverage"] = testCoverage(m3);
-  scores["Duplication"] = findClones(path, false, vol.lines);
+  scores["Unit complexity score"] = cyclomaticComplexity(m3, path);
+  scores["Unit Test Coverage score"] = testCoverage(m3, path);
+  scores["Duplication score"] = findClones(path, false, vol.lines);
   
   scorePrinter(scores);
   
-  str analysability = aggregateScores([scores["Volume score"], scores["Duplication"], scores["Unit size score"], scores["Unit Test Coverage"]]);
-  str changeability = aggregateScores([scores["Unit complexity score"], scores["Duplication"]]);
-  str stability     = aggregateScores([scores["Unit Test Coverage"]]);
-  str testability   = aggregateScores([scores["Unit complexity score"], scores["Unit size score"], scores["Unit Test Coverage"]]);
+  str analysability = aggregateScores([scores["Volume score"], scores["Duplication score"], scores["Unit size score"], scores["Unit Test Coverage score"]]);
+  str changeability = aggregateScores([scores["Unit complexity score"], scores["Duplication score"]]);
+  str stability     = aggregateScores([scores["Unit Test Coverage score"]]);
+  str testability   = aggregateScores([scores["Unit complexity score"], scores["Unit size score"], scores["Unit Test Coverage score"]]);
   
   println("Analysability score: <analysability>");
   println("Changeability score: <changeability>");
-  println("Stability score: <stability>");
-  println("Testability score: <testability>");
+  println("Stability score:     <stability>");
+  println("Testability score:   <testability>");
   
   println("\nMaintainability score: <aggregateScores([analysability, changeability, stability, testability])>");
 
