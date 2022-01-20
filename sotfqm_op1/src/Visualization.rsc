@@ -23,10 +23,8 @@ alias UnitCC = lrel[str uName, int uSize, int cc];
 Figure dataView = box(fillColor(rgb(0, 0, 0, 0.0)));
 bool selected = false;
 
-public void run(){
-	
-	//loc ccPath = |project://sotfqm_op1/data/JabberPoint_unitcc.txt|;
-	//loc tCoverPath = |project://sotfqm_op1/data/JabberPoint_testcoverage.txt|;
+//Run visualisation
+public void runVisualisation(){
 	
 	//loc ccPath = |project://sotfqm_op1/data/hsqldb_unitcc.txt|;
 	//loc tCoverPath = |project://sotfqm_op1/data/hsqldb_testcoverage.txt|;
