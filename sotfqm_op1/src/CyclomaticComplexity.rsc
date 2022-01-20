@@ -14,16 +14,6 @@ import Set;
 
 alias UnitCC = lrel[str, int, int];
 
-public void run(){
-
-	loc path = |project://smallsql/|;
-	//loc path = |project://hsqldb/|;
-	//loc path = |project://JabberPoint|;
-	
-	M3 model = createM3FromEclipseProject(path);
-	cyclomaticComplexity(model, path);
-}
-
 public str cyclomaticComplexity(M3 model, loc path){
 	
 	// relation between unit(method)size and Cyclomatic Complexity of set unit (unitsize -> CC)

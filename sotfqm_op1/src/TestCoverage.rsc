@@ -10,17 +10,6 @@ import String;
 
 import ValueIO;
 
-public void run(){
-	
-	loc path = |project://smallsql/|;
-	//loc path = |project://hsqldb/|;
-	//loc path = |project://JabberPoint|;
-	
-	M3 model = createM3FromEclipseProject(path);
-	
-	testCoverage(model, path);
-}
-
 public str testCoverage(M3 model, loc path){
 
 	// map of all methods that are:
