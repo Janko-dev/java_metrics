@@ -55,12 +55,10 @@ public str findClones(loc m3, bool showoutput, int totalLines){
 //Process each java file in project
   	 totalClones += findclone(fileContent, showoutput);	
   }
-//Once a file is processed, its removed from the file pool
-//Improves runtime and /2 is not needed 
 // A duplicate is an identical block of 6 lines
-  real duplication = blockSize * 100 * totalClones / totalLines;
-  println("Duplication hits: <totalClones>");
-  println("Duplication: <blockSize * totalClones/totalLines * 100> %\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
+  real duplication = blockSize * 2 * 100 * totalClones / totalLines;
+  println("Duplication hits: <2 * totalClones>");
+  println("Duplication: <2 * blockSize * totalClones/totalLines * 100> %\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
   //println(now());
   
   return rating(duplication);
