@@ -8,6 +8,7 @@ import util::FileSystem;
 import Functions;
 
 // Calulates Volume of project
+// Exclude /doc/verbatim, hsqldb contains copies of source file in that location
 public tuple[int, str] volume(loc m3) {
   int totalLoc = sum([linesPerFile(f)| /file(f) <- crawl(m3), 
   		f.extension == "java" && /src/i := f.path && !/doc\/verbatim/i := f.path]);

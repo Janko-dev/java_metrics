@@ -20,18 +20,6 @@ public str trimSinglelineComments(str line) {
   return line;
 }
 
-// Eliminates imports
-public str trimJavaHead(str line) {
-//Regexp Search for import  (empty String is returned)
-  if(/import/ := trim(line)) {
-    return "";
-  }
-  if(/package/ := trim(line)) {
-    return "";
-  }
-  return line;
-}
-
 // Eliminates javadoc, block starts with /** ends with */
 public list[str] trimJavaDoc(list[str] lines) {
   str startStr = "/**";
@@ -58,7 +46,7 @@ public list[str] trimMultilineComments(list[str] lines) {
   } catch: return lines;
 }
 
-// Find pattern, Head and Tail recursive function like Haskell
+// Find pattern, Head and Tail recursive function like in Haskell
 public tuple[int,int] lazyFind(lrel[int, str] container, str pattern) {
   if([H, *T] := container) { //Head *Tail
     if(contains(H[1], pattern) && !inString(H[1], pattern)) {
@@ -118,25 +106,6 @@ public map[str, real] riskPercentages(map[str, real] risks, int totalLoc) {
   return risks;
 }
 
-//Unit size rating, SIG Thresholds (only 4stars found, Rest still missing)
-//To be eligible for certification at the level of 4 stars, for each programming language used:
-//The percentage of lines of code residing in units with more than 15 lines of code should not exceed 42.3%.
-//percentage in units with more than 30 lines of code should not exceed 18.5%.
-//The percentage in units with more than 60 lines should not exceed 5.4%.
-public str ratingUnitSize(map[str, real] riskLevels) {
-  if(riskLevels["moderate"] <= 25 && riskLevels["high"] == 0 && riskLevels["veryHigh"] == 0) {
-    return "++";
-  } else if(riskLevels["moderate"] <= 30 && riskLevels["high"] <= 5 && riskLevels["veryHigh"] == 0) {
-    return "+";
-  } else if(riskLevels["moderate"] <= 40 && riskLevels["high"] <= 10 && riskLevels["veryHigh"] == 0) {
-    return "o";
-  } else if(riskLevels["moderate"] <= 42.3 && riskLevels["high"] <= 18.5 && riskLevels["veryHigh"] <= 5.4) {
-    return "-";
-  } else {
-    return "--";
-  }
-}
-
 //Output Unit size info
 public void resultsPrinter(map[str, real] riskLevels) {
   real low = riskLevels["low"];
@@ -176,8 +145,6 @@ public list[str] trimLoc(loc content) {
   objectContent = trimMultilineComments(objectContent);
 // Replace javadoc with empty
   objectContent = trimJavaDoc(objectContent);
-// Replace imports and package with empty
-// objectContent = mapper(objectContent, trimJavaHead);
 // Replace single line comments with empty
   objectContent = mapper(objectContent, trimSinglelineComments);
 // Filter Empty

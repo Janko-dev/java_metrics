@@ -6,7 +6,7 @@ import util::FileSystem;
 
 import Volume;
 import String;
-import DateTime;
+//import DateTime;
 
 import util::Resources;
 import List;
@@ -33,6 +33,7 @@ loc tmpClones = |project://sotfqm_op1/data/hsqldb_clones.txt|;
 map[loc file, int clones] clonesMap = ();
 
 //Reads java files from project
+// /doc/verbatim/ exclusion, contains copies of source files
 set[loc] readJavaFiles(loc project) {
    Resource r = getProject(project);
 return { a | /file(a) <- r,
@@ -56,6 +57,7 @@ public str findClones(loc m3, bool showoutput, int totalLines){
   	 totalClones += findclone(fileContent, showoutput);	
   }
 // A duplicate is an identical block of 6 lines
+// 2 as multiplier, according to SIG, every hit means 2 duplicates
   real duplication = blockSize * 2 * 100 * totalClones / totalLines;
   println("Duplication hits: <2 * totalClones>");
   println("Duplication: <2 * blockSize * totalClones/totalLines * 100> %\n"); //how many blocks of 6 lines will be compared with the rest of the files (min 1 match, itself)	
@@ -89,6 +91,7 @@ list[str] makeBlocks(int blockSize, list[str] content){
 	while( size(content)>blockSize ){
 	 	codeBlock = head(content,blockSize);
 	 	content = tail(content, (size(content) - 1));
+	 // remove additional ],[ otherwise the block content will not match the target string
 	 	strCodeBlock = replaceLast(toString(codeBlock), "]" , "");
 	 	strCodeBlock = replaceFirst(strCodeBlock, "[" , "");
 		strCodeBlock = substring(strCodeBlock, 1, size(strCodeBlock)-1);
@@ -108,7 +111,7 @@ void printInfo(loc target, loc source, str sampleCode, int total){
 	}
 }
 
-// String comparison of each given block with the content collection
+// String comparison of each given block with every file in the content collection
 int searchInFiles(list[str] blocks, loc source, bool showoutput){
 
     int total = 0;
@@ -122,12 +125,15 @@ int searchInFiles(list[str] blocks, loc source, bool showoutput){
 	    	if(target != source){
 	    		matches += blockFound;
 	    	}else if(blockFound > 1){ 
+	    	//if source and target are the same, every search returns at least 1 duplicate   	
 	    		matches += blockFound - 1;
 	    	}
 	    	if (matches >= 1 && sampleCode == ""){
+	    	//output sample
 	    		sampleCode = block;	    		
 	    	}
 		    if(matches > 0){
+		    //duplicate has been found, remove the block to avoid repetitions
 		    	targetContent = replaceAll(targetContent, block, "");
 		    }		    	
 	    }
